@@ -22,10 +22,19 @@ func main() {
 		directory = defaultDirectory
 	}
 
-	searchFiles(directory)
+	files := searchFiles(directory)
+
+	for hash, paths := range files {
+		if len(paths) > 1 {
+			fmt.Println(hash)
+			for _, file := range paths {
+				fmt.Println("  ", file)
+			}
+		}
+	}
 }
 
-func searchFiles(directory string) {
+func searchFiles(directory string) map[string][]string {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println(r)
@@ -50,16 +59,11 @@ func searchFiles(directory string) {
 		return werr
 	});
 
-	for hash, filePaths := range files {
-		fmt.Println(hash)
-		for _, file := range filePaths {
-			fmt.Println("\t", file)
-		}
-	}
-
 	if err != nil {
 		panic(err)
 	}
+
+	return files
 }
 
 func walkFn(path string, fileInfo os.FileInfo, err error) (string, error) {
